@@ -3,162 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Game CMS Pro</title>
+  <title>Game CMS</title>
 
   <style>
-    body {
-      margin: 0;
-      font-family: Arial;
-      background: #111;
-      color: white;
-    }
-
-    .center {
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .box {
-      background: #1f1f1f;
-      padding: 20px;
-      border-radius: 10px;
-      width: 320px;
-    }
-
-    input, select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      border: none;
-      border-radius: 6px;
-    }
-
-    button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #0056b3;
-    }
-
-    #content {
-      display: none;
-      padding: 20px;
-    }
-
-    .game {
-      background: #222;
-      padding: 15px;
-      margin-top: 10px;
-      border-radius: 8px;
-    }
-
-    #adminPanel {
-      display: none;
-      margin-top: 20px;
-      background: #1a1a1a;
-      padding: 15px;
-      border-radius: 10px;
-    }
-
-    .tab-buttons {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .tab-buttons button {
-      flex: 1;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    #error {
-      margin-top: 10px;
-      font-size: 14px;
-    }
+    body { font-family: Arial; background:#111; color:white; margin:0; }
+    .center { height:100vh; display:flex; align-items:center; justify-content:center; }
+    .box { background:#222; padding:20px; border-radius:10px; width:300px; }
+    input, button { width:100%; padding:10px; margin-top:10px; }
+    button { cursor:pointer; }
+    #content { display:none; padding:20px; }
+    .game { background:#333; padding:10px; margin-top:10px; border-radius:8px; }
+    #adminPanel { display:none; margin-top:20px; padding:10px; background:#1a1a1a; }
+    .hidden { display:none; }
   </style>
 </head>
 
 <body>
 
-<!-- LOGIN PAGE -->
+<!-- LOGIN -->
 <div class="center" id="loginPage">
   <div class="box">
     <h2>Login</h2>
-
     <input id="username" placeholder="Username">
     <input id="password" type="password" placeholder="Password">
-
     <button onclick="login()">Login</button>
     <button onclick="signup()">Sign Up</button>
-
     <p id="error"></p>
   </div>
 </div>
 
-<!-- MAIN CONTENT -->
+<!-- MAIN -->
 <div id="content">
-
-  <h1>Game CMS Pro</h1>
+  <h1>Game CMS</h1>
   <p id="welcome"></p>
 
-  <!-- GAME/PAGES AREA -->
   <div id="pages"></div>
 
-  <!-- ADMIN PANEL -->
   <div id="adminPanel">
+    <h2>Admin Panel</h2>
 
-    <h2>Admin Dashboard</h2>
+    <button onclick="openTab('users')">Users</button>
+    <button onclick="openTab('pages')">Pages</button>
+    <button onclick="openTab('settings')">Settings</button>
 
-    <div class="tab-buttons">
-      <button onclick="openTab('users')">Users</button>
-      <button onclick="openTab('pages')">Pages</button>
-      <button onclick="openTab('settings')">Settings</button>
-    </div>
-
-    <!-- USERS TAB -->
     <div id="tab-users">
       <input id="userSearch" placeholder="Search users..." oninput="renderUsers()">
-
-      <select id="userFilter" onchange="renderUsers()">
-        <option value="all">All</option>
-        <option value="admin">Admins</option>
-        <option value="member">Members</option>
-        <option value="banned">Banned</option>
-      </select>
-
       <div id="userList"></div>
     </div>
 
-    <!-- PAGES TAB -->
     <div id="tab-pages" class="hidden">
       <button onclick="createPage()">Create Page</button>
-      <div id="pageList"></div>
     </div>
 
-    <!-- SETTINGS TAB -->
     <div id="tab-settings" class="hidden">
-      <button onclick="logout()" style="background:red;">Logout</button>
+      <button onclick="logout()">Logout</button>
     </div>
-
   </div>
 
-  <button onclick="logout()" style="background:red; margin-top:20px;">
-    Logout
-  </button>
-
+  <button onclick="logout()" style="background:red; margin-top:20px;">Logout</button>
 </div>
 
 <script src="script.js"></script>
