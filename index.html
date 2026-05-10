@@ -3,48 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Emerald</title>
 
-    <!-- Main CSS -->
     <link rel="stylesheet" href="style.css">
-
-    <!-- Optional second CSS file -->
     <link rel="stylesheet" href="style9.css">
 </head>
 
 <body class="main">
 
-    <!-- Login / Signup Navigation -->
+    <!-- LOGIN / SIGNUP -->
     <div class="login">
 
-        <a href="./login.html" style="color: black; text-decoration: none;">
-            <h2 style="font-size:20px;">LOGIN |</h2>
+        <a href="./login.html" class="nav-btn">
+            <h2>LOGIN |</h2>
         </a>
 
-        <a href="./signup.html" style="color: black; text-decoration: none;">
-            <h2 style="font-size:20px;">SIGNUP</h2>
+        <a href="./signup.html" class="nav-btn">
+            <h2>SIGNUP</h2>
         </a>
 
     </div>
 
-    <!-- Header -->
-    <header>
-        <h1>Home</h1>
+    <!-- PASSWORD SCREEN -->
+    <div id="passwordScreen" class="password-box">
+
+        <h1>Enter Password</h1>
 
         <input 
-            type="text" 
-            id="searchBar" 
-            placeholder="Search games..."
+            type="password" 
+            id="passwordInput" 
+            placeholder="Password"
         >
-    </header>
 
-    <!-- Main Content -->
-    <main id="gameGrid" class="game-grid">
-        <!-- Games will appear here -->
-    </main>
+        <button onclick="checkPassword()">
+            Enter
+        </button>
 
-    <!-- JavaScript -->
+        <p id="errorText"></p>
+
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="mainContent" style="display:none;">
+
+        <header>
+            <h1>Home</h1>
+
+            <input 
+                type="text" 
+                id="searchBar" 
+                placeholder="Search games..."
+            >
+        </header>
+
+        <main id="gameGrid" class="game-grid">
+            <!-- Games appear here -->
+        </main>
+
+    </div>
+
+    <script>
+        // CHANGE THIS PASSWORD
+        const correctPassword = "emerald123";
+
+        function checkPassword() {
+
+            const enteredPassword =
+                document.getElementById("passwordInput").value;
+
+            if (enteredPassword === correctPassword) {
+
+                document.getElementById("passwordScreen")
+                    .style.display = "none";
+
+                document.getElementById("mainContent")
+                    .style.display = "block";
+
+            } else {
+
+                document.getElementById("errorText")
+                    .innerText = "Wrong password";
+
+            }
+        }
+    </script>
+
     <script src="script.js"></script>
 
 </body>
