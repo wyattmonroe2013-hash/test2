@@ -1,19 +1,31 @@
 
 // =======================
-// CONFIG
+// BACKEND CONFIG
 // =======================
 
-const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwfc8zGznD5wre5PNIQWmnP6J64mZ5OLO207nO5pgNAMFMwz8oKmcsVLP6Zzv-lllmGyg/exec";
+const BACKEND_URL =
+  "https://script.google.com/macros/s/AKfycbwfc8zGznD5wre5PNIQWmnP6J64mZ5OLO207nO5pgNAMFMwz8oKmcsVLP6Zzv-lllmGyg/exec";
 
 // =======================
-// LOGIN (WITH EMERGENCY ADMIN)
+// DEBUG (CHECK IF LOADED)
+// =======================
+
+console.log("SCRIPT LOADED");
+
+// Catch errors so nothing fails silently
+window.onerror = function (msg, src, line) {
+  console.error("JS ERROR:", msg, "Line:", line);
+};
+
+// =======================
+// LOGIN
 // =======================
 
 async function login() {
   const user = document.getElementById("username").value.trim();
   const pass = document.getElementById("password").value.trim();
 
-  // 🧯 EMERGENCY ADMIN BACKDOOR (LOCAL ONLY)
+  // 🧯 EMERGENCY ADMIN BACKDOOR
   if (user === "Wyatt" && pass === "Test") {
     localStorage.setItem("session", JSON.stringify({
       username: "Wyatt",
@@ -24,7 +36,6 @@ async function login() {
     return;
   }
 
-  // 🔌 BACKEND LOGIN
   try {
     const res = await fetch(BACKEND_URL, {
       method: "POST",
@@ -45,7 +56,8 @@ async function login() {
     showContent();
 
   } catch (err) {
-    setError("Server error or invalid backend URL");
+    setError("Backend error or wrong URL");
+    console.error(err);
   }
 }
 
@@ -127,7 +139,7 @@ async function loadPages() {
 }
 
 // =======================
-// LOAD USERS (ADMIN)
+// USERS (ADMIN)
 // =======================
 
 async function renderUsers() {
@@ -205,7 +217,7 @@ async function createPage() {
 }
 
 // =======================
-// TOGGLE BAN
+// BAN SYSTEM
 // =======================
 
 async function toggleBan(username) {
@@ -258,3 +270,16 @@ function setSuccess(msg) {
   el.style.color = "lime";
   el.innerText = msg;
 }
+
+// =======================
+// 🔥 CRITICAL FIX (THIS FIXES YOUR BUTTONS)
+// =======================
+
+// Make functions globally accessible for onclick=""
+window.login = login;
+window.signup = signup;
+window.logout = logout;
+window.openTab = openTab;
+window.createPage = createPage;
+window.renderUsers = renderUsers;
+window.toggleBan = toggleBan;
