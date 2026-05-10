@@ -1,38 +1,54 @@
 
-console.log("CMS Loaded");
+// =========================
+// WAIT FOR PAGE TO LOAD (IMPORTANT FIX)
+// =========================
+
+window.onload = function () {
+  init();
+};
 
 // =========================
-// SAFE DATABASE LOAD
+// DATABASE
 // =========================
 
 let db = JSON.parse(localStorage.getItem("db") || "null");
 
-if (!db || !db.users || !db.pages) {
-  db = {
-    users: {
-      admin: {
-        password: "1234",
-        role: "admin",
-        banned: false
+function init() {
+
+  if (!db || !db.users || !db.pages) {
+    db = {
+      users: {
+        admin: {
+          password: "1234",
+          role: "admin",
+          banned: false
+        }
+      },
+      pages: {
+        home: {
+          title: "Home",
+          content: "<div class='game'><h2>Welcome</h2></div>"
+        }
       }
-    },
-    pages: {
-      home: {
-        title: "Home",
-        content: "<div class='game'><h2>Welcome</h2></div>"
-      }
-    }
-  };
+    };
 
-  localStorage.setItem("db", JSON.stringify(db));
-}
+    saveDB();
+  }
 
-// =========================
-// AUTO LOGIN
-// =========================
+  // AUTO LOGIN
+  if (localStorage.getItem("loggedIn") === "yes") {
+    showContent();
+  }
 
-if (localStorage.getItem("loggedIn") === "yes") {
-  showContent();
+  // BUTTON HOOK SAFETY
+  window.login = login;
+  window.signup = signup;
+  window.logout = logout;
+  window.createUser = createUser;
+  window.createPage = createPage;
+  window.toggleBan = toggleBan;
+  window.makeAdmin = makeAdmin;
+  window.deletePage = deletePage;
 }
 
 // =========================
@@ -40,8 +56,8 @@ if (localStorage.getItem("loggedIn") === "yes") {
 // =========================
 
 function login() {
-  const user = username.value.trim();
-  const pass = password.value.trim();
+  const user = document.getElementById("username").value.trim();
+  const pass = document.getElementById("password").value.trim();
 
   const u = db.users[user];
 
@@ -61,8 +77,8 @@ function login() {
 // =========================
 
 function signup() {
-  const user = username.value.trim();
-  const pass = password.value.trim();
+  const user = document.getElementById("username").value.trim();
+  const pass = document.getElementById("password").value.trim();
 
   if (!user || !pass) return setError("Fill all fields");
   if (db.users[user]) return setError("User exists");
@@ -82,18 +98,19 @@ function signup() {
 // =========================
 
 function showContent() {
-  loginPage.style.display = "none";
-  content.style.display = "block";
+  document.getElementById("loginPage").style.display = "none";
+  document.getElementById("content").style.display = "block";
 
   const user = localStorage.getItem("username");
   const role = localStorage.getItem("role");
 
-  welcome.innerText = `Welcome ${user} (${role})`;
+  document.getElementById("welcome").innerText =
+    `Welcome ${user} (${role})`;
 
   loadPages();
 
   if (role === "admin") {
-    adminPanel.style.display = "block";
+    document.getElementById("adminPanel").style.display = "block";
     renderUsers();
     renderPages();
   }
@@ -104,16 +121,14 @@ function showContent() {
 // =========================
 
 function loadPages() {
-  pages.innerHTML = "";
+  const container = document.getElementById("pages");
+  container.innerHTML = "";
 
   Object.keys(db.pages).forEach(id => {
-    const p = db.pages[id];
-
     const div = document.createElement("div");
     div.className = "game";
-    div.innerHTML = p.content;
-
-    pages.appendChild(div);
+    div.innerHTML = db.pages[id].content;
+    container.appendChild(div);
   });
 }
 
@@ -122,7 +137,8 @@ function loadPages() {
 // =========================
 
 function renderUsers() {
-  userList.innerHTML = "";
+  const container = document.getElementById("userList");
+  container.innerHTML = "";
 
   Object.keys(db.users).forEach(name => {
     const u = db.users[name];
@@ -140,7 +156,7 @@ function renderUsers() {
       <button onclick="makeAdmin('${name}')">Admin</button>
     `;
 
-    userList.appendChild(div);
+    container.appendChild(div);
   });
 }
 
@@ -149,22 +165,21 @@ function renderUsers() {
 // =========================
 
 function renderPages() {
-  pageList.innerHTML = "";
+  const container = document.getElementById("pageList");
+  container.innerHTML = "";
 
   Object.keys(db.pages).forEach(id => {
-    const p = db.pages[id];
-
     const div = document.createElement("div");
     div.style.background = "#333";
     div.style.margin = "5px";
     div.style.padding = "10px";
 
     div.innerHTML = `
-      <b>${p.title}</b><br>
+      <b>${db.pages[id].title}</b><br>
       <button onclick="deletePage('${id}')">Delete</button>
     `;
 
-    pageList.appendChild(div);
+    container.appendChild(div);
   });
 }
 
@@ -177,6 +192,8 @@ function createUser() {
   const pass = prompt("Password");
   const role = prompt("Role admin/member", "member");
 
+  if (!name || !pass) return;
+
   db.users[name] = {
     password: pass,
     role: role,
@@ -188,13 +205,15 @@ function createUser() {
 }
 
 // =========================
-// CREATE PAGE (TEXT ONLY)
+// CREATE PAGE
 // =========================
 
 function createPage() {
   const id = prompt("Page ID");
   const title = prompt("Title");
   const text = prompt("Text");
+
+  if (!id || !title) return;
 
   db.pages[id] = {
     title,
@@ -207,11 +226,11 @@ function createPage() {
 }
 
 // =========================
-// BAN SYSTEM
+// BAN
 // =========================
 
 function toggleBan(name) {
-  if (name === "admin") return alert("No banning admin");
+  if (name === "admin") return alert("No admin ban");
 
   db.users[name].banned = !db.users[name].banned;
   saveDB();
@@ -240,7 +259,7 @@ function deletePage(id) {
 }
 
 // =========================
-// SAVE (FIXED)
+// SAVE
 // =========================
 
 function saveDB() {
@@ -252,13 +271,13 @@ function saveDB() {
 // =========================
 
 function setError(msg) {
-  error.style.color = "red";
-  error.innerText = msg;
+  document.getElementById("error").style.color = "red";
+  document.getElementById("error").innerText = msg;
 }
 
 function setSuccess(msg) {
-  error.style.color = "lime";
-  error.innerText = msg;
+  document.getElementById("error").style.color = "lime";
+  document.getElementById("error").innerText = msg;
 }
 
 // =========================
@@ -266,8 +285,6 @@ function setSuccess(msg) {
 // =========================
 
 function logout() {
-  localStorage.removeItem("loggedIn");
-  localStorage.removeItem("username");
-  localStorage.removeItem("role");
+  localStorage.clear();
   location.reload();
 }
