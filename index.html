@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Game CMS</title>
+  <title>Game CMS Pro</title>
 
   <style>
     body {
@@ -14,10 +14,10 @@
     }
 
     .center {
+      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
     }
 
     .box {
@@ -27,7 +27,7 @@
       width: 320px;
     }
 
-    input {
+    input, select {
       width: 100%;
       padding: 10px;
       margin-top: 10px;
@@ -39,8 +39,8 @@
       width: 100%;
       padding: 10px;
       margin-top: 10px;
-      border: none;
       border-radius: 6px;
+      border: none;
       cursor: pointer;
       background: #007bff;
       color: white;
@@ -61,13 +61,23 @@
     #adminPanel {
       display: none;
       margin-top: 20px;
-      background: #222;
+      background: #1a1a1a;
       padding: 15px;
       border-radius: 10px;
     }
 
-    .logout {
-      background: red;
+    .tab-buttons {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .tab-buttons button {
+      flex: 1;
+    }
+
+    .hidden {
+      display: none;
     }
   </style>
 </head>
@@ -89,29 +99,54 @@
   </div>
 </div>
 
-<!-- CONTENT -->
+<!-- MAIN -->
 <div id="content">
 
-  <h1>Game CMS</h1>
+  <h1>Game CMS Pro</h1>
   <p id="welcome"></p>
 
   <div id="pages"></div>
 
   <!-- ADMIN -->
   <div id="adminPanel">
-    <h2>Admin Panel</h2>
 
-    <button onclick="createUser()">Create User/Admin</button>
-    <button onclick="createPage()">Create Page</button>
+    <h2>Admin Dashboard</h2>
 
-    <h3>Users</h3>
-    <div id="userList"></div>
+    <div class="tab-buttons">
+      <button onclick="openTab('users')">Users</button>
+      <button onclick="openTab('pages')">Pages</button>
+      <button onclick="openTab('settings')">Settings</button>
+    </div>
 
-    <h3>Pages</h3>
-    <div id="pageList"></div>
+    <!-- USERS -->
+    <div id="tab-users">
+      <input id="userSearch" placeholder="Search users..." oninput="renderUsers()">
+
+      <select id="userFilter" onchange="renderUsers()">
+        <option value="all">All</option>
+        <option value="admin">Admins</option>
+        <option value="member">Members</option>
+        <option value="banned">Banned</option>
+      </select>
+
+      <div id="userList"></div>
+    </div>
+
+    <!-- PAGES -->
+    <div id="tab-pages" class="hidden">
+      <button onclick="createPage()">Create Page</button>
+      <div id="pageList"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="tab-settings" class="hidden">
+      <button onclick="logout()">Logout</button>
+    </div>
+
   </div>
 
-  <button class="logout" onclick="logout()">Logout</button>
+  <button onclick="logout()" style="background:red;">Logout</button>
+
 </div>
 
 <script src="script.js"></script>
