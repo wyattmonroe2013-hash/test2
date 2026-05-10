@@ -1,163 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emerald</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Protected Games</title>
 
-    <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: white;
+    }
+
+    .center {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .box {
+      background: #1f1f1f;
+      padding: 30px;
+      border-radius: 12px;
+      width: 320px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+
+    h2 {
+      text-align: center;
+      margin-top: 0;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      border: none;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      border: none;
+      border-radius: 8px;
+      background: #007bff;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    #error {
+      color: red;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    #content {
+      display: none;
+      padding: 20px;
+    }
+
+    .game {
+      background: #1f1f1f;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    iframe {
+      width: 100%;
+      height: 500px;
+      border: none;
+      border-radius: 10px;
+    }
+
+    .logout {
+      background: #dc3545;
+    }
+
+    .logout:hover {
+      background: #a71d2a;
+    }
+  </style>
 </head>
+<body>
 
-<body class="main">
+<div class="center" id="loginPage">
+  <div class="box">
+    <h2>Login</h2>
 
-    <!-- LOGIN / SIGNUP -->
-    <div class="login">
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
 
-        <a href="./login.html" class="nav-btn">
-            <h2>LOGIN |</h2>
-        </a>
+    <button onclick="login()">Login</button>
 
-        <a href="./signup.html" class="nav-btn">
-            <h2>SIGNUP</h2>
-        </a>
+    <div id="error"></div>
+  </div>
+</div>
 
-    </div>
+<div id="content">
 
-    <!-- LOGIN BOX -->
-    <div id="passwordScreen" class="password-box">
+  <h1>Protected Games</h1>
 
-        <h1>Game Login</h1>
+  <div class="game">
+    <h2>Game 1</h2>
 
-        <!-- USERNAME -->
-        <label for="usernameInput">
-            Username
-        </label>
+    <iframe src="https://example.com"></iframe>
+  </div>
 
-        <input
-            type="text"
-            id="usernameInput"
-            placeholder="Enter username"
-        >
+  <div class="game">
+    <h2>Game 2</h2>
 
-        <!-- PASSWORD -->
-        <label for="passwordInput">
-            Password
-        </label>
+    <iframe src="https://example.com"></iframe>
+  </div>
 
-        <input
-            type="password"
-            id="passwordInput"
-            placeholder="Enter password"
-        >
+  <button class="logout" onclick="logout()">Logout</button>
 
-        <button onclick="checkLogin()">
-            Login
-        </button>
+</div>
 
-        <p id="errorText"></p>
+<script>
+  // USERS
+  const users = {
+    admin: "1234",
+    wyatt: "games"
+  };
 
-    </div>
+  // AUTO LOGIN
+  if (localStorage.getItem("loggedIn") === "yes") {
+    showContent();
+  }
 
-    <!-- HIDDEN MAIN CONTENT -->
-    <div id="mainContent" style="display:none;">
+  function login() {
+    const user = document.getElementById("username").value;
+    const pass = document.getElementById("password").value;
 
-        <header>
+    if (users[user] && users[user] === pass) {
+      localStorage.setItem("loggedIn", "yes");
+      localStorage.setItem("username", user);
 
-            <h1>Home</h1>
+      showContent();
+    } else {
+      document.getElementById("error").innerText =
+        "Incorrect username or password";
+    }
+  }
 
-            <input
-                type="text"
-                id="searchBar"
-                placeholder="Search games..."
-            >
+  function showContent() {
+    document.getElementById("loginPage").style.display = "none";
+    document.getElementById("content").style.display = "block";
+  }
 
-        </header>
+  function logout() {
+    localStorage.removeItem("loggedIn");
+    localStorage.removeItem("username");
 
-        <!-- GAMES -->
-        <main id="gameGrid" class="game-grid">
-
-            <div class="game-card">
-                <h3>Minecraft</h3>
-            </div>
-
-            <div class="game-card">
-                <h3>Roblox</h3>
-            </div>
-
-            <div class="game-card">
-                <h3>Geometry Dash</h3>
-            </div>
-
-        </main>
-
-    </div>
-
-    <script>
-
-        // MULTIPLE ACCOUNTS
-        const accounts = [
-
-            {
-                username: "admin",
-                password: "admin123"
-            },
-
-            {
-                username: "wyatt",
-                password: "emerald"
-            },
-
-            {
-                username: "guest",
-                password: "guest123"
-            }
-
-        ];
-
-        function checkLogin(){
-
-            const enteredUsername =
-                document.getElementById("usernameInput").value;
-
-            const enteredPassword =
-                document.getElementById("passwordInput").value;
-
-            let validLogin = false;
-
-            // CHECK ALL ACCOUNTS
-            for(let i = 0; i < accounts.length; i++){
-
-                if(
-                    enteredUsername === accounts[i].username &&
-                    enteredPassword === accounts[i].password
-                ){
-                    validLogin = true;
-                    break;
-                }
-            }
-
-            // IF LOGIN IS CORRECT
-            if(validLogin){
-
-                document.getElementById("passwordScreen")
-                    .style.display = "none";
-
-                document.getElementById("mainContent")
-                    .style.display = "block";
-
-            }
-
-            // IF LOGIN IS WRONG
-            else{
-
-                document.getElementById("errorText")
-                    .innerText = "Wrong username or password";
-
-            }
-
-        }
-
-    </script>
+    location.reload();
+  }
+</script>
 
 </body>
 </html>
