@@ -6,7 +6,6 @@
     <title>Emerald</title>
 
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="style9.css">
 </head>
 
 <body class="main">
@@ -24,54 +23,121 @@
 
     </div>
 
-    <!-- PASSWORD SCREEN -->
+    <!-- LOGIN BOX -->
     <div id="passwordScreen" class="password-box">
 
-        <h1>Enter Password</h1>
+        <h1>Game Login</h1>
 
-        <input 
-            type="password" 
-            id="passwordInput" 
-            placeholder="Password"
+        <!-- USERNAME -->
+        <label for="usernameInput">
+            Username
+        </label>
+
+        <input
+            type="text"
+            id="usernameInput"
+            placeholder="Enter username"
         >
 
-        <button onclick="checkPassword()">
-            Enter
+        <!-- PASSWORD -->
+        <label for="passwordInput">
+            Password
+        </label>
+
+        <input
+            type="password"
+            id="passwordInput"
+            placeholder="Enter password"
+        >
+
+        <button onclick="checkLogin()">
+            Login
         </button>
 
         <p id="errorText"></p>
 
     </div>
 
-    <!-- MAIN CONTENT -->
+    <!-- HIDDEN MAIN CONTENT -->
     <div id="mainContent" style="display:none;">
 
         <header>
+
             <h1>Home</h1>
 
-            <input 
-                type="text" 
-                id="searchBar" 
+            <input
+                type="text"
+                id="searchBar"
                 placeholder="Search games..."
             >
+
         </header>
 
+        <!-- GAMES -->
         <main id="gameGrid" class="game-grid">
-            <!-- Games appear here -->
+
+            <div class="game-card">
+                <h3>Minecraft</h3>
+            </div>
+
+            <div class="game-card">
+                <h3>Roblox</h3>
+            </div>
+
+            <div class="game-card">
+                <h3>Geometry Dash</h3>
+            </div>
+
         </main>
 
     </div>
 
     <script>
-        // CHANGE THIS PASSWORD
-        const correctPassword = "emerald123";
 
-        function checkPassword() {
+        // MULTIPLE ACCOUNTS
+        const accounts = [
+
+            {
+                username: "admin",
+                password: "admin123"
+            },
+
+            {
+                username: "wyatt",
+                password: "emerald"
+            },
+
+            {
+                username: "guest",
+                password: "guest123"
+            }
+
+        ];
+
+        function checkLogin(){
+
+            const enteredUsername =
+                document.getElementById("usernameInput").value;
 
             const enteredPassword =
                 document.getElementById("passwordInput").value;
 
-            if (enteredPassword === correctPassword) {
+            let validLogin = false;
+
+            // CHECK ALL ACCOUNTS
+            for(let i = 0; i < accounts.length; i++){
+
+                if(
+                    enteredUsername === accounts[i].username &&
+                    enteredPassword === accounts[i].password
+                ){
+                    validLogin = true;
+                    break;
+                }
+            }
+
+            // IF LOGIN IS CORRECT
+            if(validLogin){
 
                 document.getElementById("passwordScreen")
                     .style.display = "none";
@@ -79,16 +145,19 @@
                 document.getElementById("mainContent")
                     .style.display = "block";
 
-            } else {
+            }
+
+            // IF LOGIN IS WRONG
+            else{
 
                 document.getElementById("errorText")
-                    .innerText = "Wrong password";
+                    .innerText = "Wrong username or password";
 
             }
-        }
-    </script>
 
-    <script src="script.js"></script>
+        }
+
+    </script>
 
 </body>
 </html>
