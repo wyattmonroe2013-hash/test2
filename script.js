@@ -1,7 +1,6 @@
-console.log("Script loaded");
 
 // =======================
-// DATABASE LOAD
+// LOAD DATABASE
 // =======================
 
 let db;
@@ -24,7 +23,7 @@ if (!db || !db.users || !db.pages) {
     pages: {
       home: {
         title: "Home",
-        content: "<h2>Welcome</h2><p>Your system is working.</p>"
+        content: "<div class='page'><h2>Welcome</h2><p>System is running</p></div>"
       }
     }
   };
@@ -52,7 +51,7 @@ function login() {
 
   if (!u) return setError("User not found");
 
-  if (u.banned) return setError("This user is banned");
+  if (u.banned) return setError("This account is banned");
 
   if (u.password !== pass) return setError("Wrong password");
 
@@ -122,10 +121,7 @@ function loadPages() {
     const div = document.createElement("div");
     div.className = "game";
 
-    div.innerHTML = `
-      <h2>${page.title}</h2>
-      ${page.content}
-    `;
+    div.innerHTML = page.content;
 
     container.appendChild(div);
   });
@@ -188,7 +184,7 @@ function renderPages() {
 }
 
 // =======================
-// CREATE USER
+// CREATE USER / ADMIN
 // =======================
 
 function createUser() {
@@ -209,19 +205,24 @@ function createUser() {
 }
 
 // =======================
-// CREATE PAGE
+// CREATE PAGE (TEXT ONLY)
 // =======================
 
 function createPage() {
   const id = prompt("Page ID (no spaces):");
   const title = prompt("Page title:");
-  const content = prompt("HTML content:");
+  const text = prompt("Page text (just type normal text):");
 
   if (!id || !title) return;
 
   db.pages[id] = {
-    title,
-    content
+    title: title,
+    content: `
+      <div class="page">
+        <h2>${title}</h2>
+        <p>${escapeHtml(text)}</p>
+      </div>
+    `
   };
 
   saveDB();
@@ -230,36 +231,60 @@ function createPage() {
 }
 
 // =======================
-// ACTIONS
+// BAN SYSTEM
 // =======================
 
 function toggleBan(name) {
   if (name === "admin") return alert("Cannot ban admin");
 
   db.users[name].banned = !db.users[name].banned;
+
   saveDB();
   renderUsers();
 }
+
+// =======================
+// MAKE ADMIN
+// =======================
 
 function makeAdmin(name) {
   db.users[name].role = "admin";
+
   saveDB();
   renderUsers();
 }
 
+// =======================
+// DELETE PAGE
+// =======================
+
 function deletePage(id) {
   delete db.pages[id];
+
   saveDB();
   loadPages();
   renderPages();
 }
 
 // =======================
-// SAVE
+// SAVE DB
 // =======================
 
 function saveDB() {
   localStorage.setItem("db", JSON.stringify(db));
+}
+
+// =======================
+// HTML ESCAPE (IMPORTANT)
+// =======================
+
+function escapeHtml(text) {
+  return text
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
 // =======================
@@ -286,5 +311,6 @@ function logout() {
   localStorage.removeItem("loggedIn");
   localStorage.removeItem("username");
   localStorage.removeItem("role");
+
   location.reload();
 }
