@@ -1,37 +1,22 @@
-
-// =======================
-// BACKEND CONFIG
-// =======================
-
-const BACKEND_URL =
-  "https://script.google.com/macros/s/AKfycbwfc8zGznD5wre5PNIQWmnP6J64mZ5OLO207nO5pgNAMFMwz8oKmcsVLP6Zzv-lllmGyg/exec";
-
-// =======================
-// DEBUG (CHECK IF LOADED)
-// =======================
-
 console.log("SCRIPT LOADED");
 
-// Catch errors so nothing fails silently
-window.onerror = function (msg, src, line) {
-  console.error("JS ERROR:", msg, "Line:", line);
-};
+// =======================
+// CONFIG
+// =======================
+
+const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwfc8zGznD5wre5PNIQWmnP6J64mZ5OLO207nO5pgNAMFMwz8oKmcsVLP6Zzv-lllmGyg/exec";
 
 // =======================
 // LOGIN
 // =======================
 
 async function login() {
-  const user = document.getElementById("username").value.trim();
-  const pass = document.getElementById("password").value.trim();
+  const u = username.value.trim();
+  const p = password.value.trim();
 
-  // 🧯 EMERGENCY ADMIN BACKDOOR
-  if (user === "Wyatt" && pass === "Test") {
-    localStorage.setItem("session", JSON.stringify({
-      username: "Wyatt",
-      role: "admin"
-    }));
-
+  // emergency admin
+  if (u === "Wyatt" && p === "Test") {
+    localStorage.setItem("session", JSON.stringify({ username: u, role: "admin" }));
     showContent();
     return;
   }
@@ -39,25 +24,19 @@ async function login() {
   try {
     const res = await fetch(BACKEND_URL, {
       method: "POST",
-      body: JSON.stringify({
-        action: "login",
-        username: user,
-        password: pass
-      })
+      body: JSON.stringify({ action: "login", username: u, password: p })
     });
 
     const data = await res.json();
 
-    if (!data.success) {
-      return setError(data.message || "Login failed");
-    }
+    if (!data.success) return setError("Login failed");
 
     localStorage.setItem("session", JSON.stringify(data));
     showContent();
 
-  } catch (err) {
-    setError("Backend error or wrong URL");
-    console.error(err);
+  } catch (e) {
+    setError("Backend error");
+    console.error(e);
   }
 }
 
@@ -66,47 +45,33 @@ async function login() {
 // =======================
 
 async function signup() {
-  const user = document.getElementById("username").value.trim();
-  const pass = document.getElementById("password").value.trim();
+  const u = username.value.trim();
+  const p = password.value.trim();
 
-  if (!user || !pass) return setError("Fill all fields");
+  await fetch(BACKEND_URL, {
+    method: "POST",
+    body: JSON.stringify({ action: "signup", username: u, password: p })
+  });
 
-  try {
-    await fetch(BACKEND_URL, {
-      method: "POST",
-      body: JSON.stringify({
-        action: "signup",
-        username: user,
-        password: pass
-      })
-    });
-
-    setSuccess("Account created!");
-
-  } catch (err) {
-    setError("Signup failed");
-  }
+  setError("Account created");
 }
 
 // =======================
 // SHOW CONTENT
 // =======================
 
-async function showContent() {
-  document.getElementById("loginPage").style.display = "none";
-  document.getElementById("content").style.display = "block";
+function showContent() {
+  loginPage.style.display = "none";
+  content.style.display = "block";
 
   const session = JSON.parse(localStorage.getItem("session"));
-
-  document.getElementById("welcome").innerText =
-    `Welcome ${session.username} (${session.role})`;
+  welcome.innerText = `Welcome ${session.username}`;
 
   loadPages();
 
   if (session.role === "admin") {
-    document.getElementById("adminPanel").style.display = "block";
+    adminPanel.style.display = "block";
     renderUsers();
-    renderPages();
   }
 }
 
@@ -115,85 +80,46 @@ async function showContent() {
 // =======================
 
 async function loadPages() {
-  try {
-    const res = await fetch(BACKEND_URL, {
-      method: "POST",
-      body: JSON.stringify({ action: "getPages" })
-    });
+  const res = await fetch(BACKEND_URL, {
+    method: "POST",
+    body: JSON.stringify({ action: "getPages" })
+  });
 
-    const pages = await res.json();
+  const pages = await res.json();
 
-    const container = document.getElementById("pages");
-    container.innerHTML = "";
+  pagesContainer.innerHTML = "";
 
-    pages.forEach(p => {
-      const div = document.createElement("div");
-      div.className = "game";
-      div.innerHTML = p.content;
-      container.appendChild(div);
-    });
-
-  } catch (err) {
-    console.error("Failed to load pages");
-  }
+  pages.forEach(p => {
+    const div = document.createElement("div");
+    div.className = "game";
+    div.innerHTML = p.content;
+    pages.appendChild(div);
+  });
 }
 
 // =======================
-// USERS (ADMIN)
+// USERS
 // =======================
 
 async function renderUsers() {
-  try {
-    const res = await fetch(BACKEND_URL, {
-      method: "POST",
-      body: JSON.stringify({ action: "getUsers" })
-    });
+  const res = await fetch(BACKEND_URL, {
+    method: "POST",
+    body: JSON.stringify({ action: "getUsers" })
+  });
 
-    let users = await res.json();
+  const users = await res.json();
 
-    const search = document.getElementById("userSearch")?.value?.toLowerCase() || "";
-    const filter = document.getElementById("userFilter")?.value || "all";
+  userList.innerHTML = "";
 
-    users = users.filter(u => {
-      const matchSearch = u.username.toLowerCase().includes(search);
-
-      const matchFilter =
-        filter === "all" ||
-        (filter === "admin" && u.role === "admin") ||
-        (filter === "member" && u.role === "member") ||
-        (filter === "banned" && u.banned === "true");
-
-      return matchSearch && matchFilter;
-    });
-
-    const container = document.getElementById("userList");
-    container.innerHTML = "";
-
-    users.forEach(u => {
-      const div = document.createElement("div");
-
-      div.style.background = "#333";
-      div.style.margin = "5px";
-      div.style.padding = "10px";
-      div.style.borderRadius = "6px";
-
-      div.innerHTML = `
-        <b>${u.username}</b><br>
-        Role: ${u.role}<br>
-        Banned: ${u.banned}<br>
-        <button onclick="toggleBan('${u.username}')">Ban/Unban</button>
-      `;
-
-      container.appendChild(div);
-    });
-
-  } catch (err) {
-    console.error("User load failed");
-  }
+  users.forEach(u => {
+    const div = document.createElement("div");
+    div.innerHTML = `<b>${u.username}</b> - ${u.role}`;
+    userList.appendChild(div);
+  });
 }
 
 // =======================
-// CREATE PAGE
+// PAGES
 // =======================
 
 async function createPage() {
@@ -201,15 +127,12 @@ async function createPage() {
   const title = prompt("Title");
   const text = prompt("Text");
 
-  if (!id || !title) return;
-
   await fetch(BACKEND_URL, {
     method: "POST",
     body: JSON.stringify({
       action: "createPage",
       id,
-      title,
-      content: `<div class='game'><h2>${title}</h2><p>${text}</p></div>`
+      content: `<div class='game'><h3>${title}</h3><p>${text}</p></div>`
     })
   });
 
@@ -217,29 +140,13 @@ async function createPage() {
 }
 
 // =======================
-// BAN SYSTEM
-// =======================
-
-async function toggleBan(username) {
-  await fetch(BACKEND_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "toggleBan",
-      username
-    })
-  });
-
-  renderUsers();
-}
-
-// =======================
 // TABS
 // =======================
 
 function openTab(tab) {
-  document.getElementById("tab-users").classList.add("hidden");
-  document.getElementById("tab-pages").classList.add("hidden");
-  document.getElementById("tab-settings").classList.add("hidden");
+  tab-users.classList.add("hidden");
+  tab-pages.classList.add("hidden");
+  tab-settings.classList.add("hidden");
 
   document.getElementById("tab-" + tab).classList.remove("hidden");
 }
@@ -249,37 +156,25 @@ function openTab(tab) {
 // =======================
 
 function logout() {
-  localStorage.removeItem("session");
+  localStorage.clear();
   location.reload();
 }
 
 // =======================
-// UI HELPERS
+// ERROR
 // =======================
 
 function setError(msg) {
-  const el = document.getElementById("error");
-  if (!el) return;
-  el.style.color = "red";
-  el.innerText = msg;
-}
-
-function setSuccess(msg) {
-  const el = document.getElementById("error");
-  if (!el) return;
-  el.style.color = "lime";
-  el.innerText = msg;
+  error.innerText = msg;
 }
 
 // =======================
-// 🔥 CRITICAL FIX (THIS FIXES YOUR BUTTONS)
+// CRITICAL FIX (THIS FIXES YOUR ERROR)
 // =======================
 
-// Make functions globally accessible for onclick=""
 window.login = login;
 window.signup = signup;
 window.logout = logout;
 window.openTab = openTab;
 window.createPage = createPage;
 window.renderUsers = renderUsers;
-window.toggleBan = toggleBan;
