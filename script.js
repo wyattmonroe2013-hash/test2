@@ -1,5 +1,5 @@
 
-const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwg4U18Nw_3NfWbOBAAywI1ztVBCLBwAVvpCAldd5ZoXkiHVABpFgX_9d6PcAEhwf-c3g/exec";
+const BACKEND_URL = "PASTE_YOUR_APPS_SCRIPT_URL_HERE";
 
 // =======================
 // LOGIN
@@ -8,10 +8,6 @@ const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwg4U18Nw_3NfWbOBAA
 async function login() {
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value.trim();
-
-  if (!username || !password) {
-    return setError("Fill all fields");
-  }
 
   const res = await fetch(BACKEND_URL, {
     method: "POST",
@@ -24,9 +20,7 @@ async function login() {
 
   const data = await res.json();
 
-  if (!data.success) {
-    return setError(data.message || "Login failed");
-  }
+  if (!data.success) return setError(data.message);
 
   localStorage.setItem("session", JSON.stringify(data));
 
@@ -41,11 +35,7 @@ async function signup() {
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value.trim();
 
-  if (!username || !password) {
-    return setError("Fill all fields");
-  }
-
-  const res = await fetch(BACKEND_URL, {
+  await fetch(BACKEND_URL, {
     method: "POST",
     body: JSON.stringify({
       action: "signup",
@@ -54,13 +44,7 @@ async function signup() {
     })
   });
 
-  const data = await res.json();
-
-  if (!data.success) {
-    return setError("Signup failed");
-  }
-
-  setSuccess("Account created!");
+  setSuccess("Account created");
 }
 
 // =======================
@@ -68,63 +52,71 @@ async function signup() {
 // =======================
 
 async function showContent() {
-  document.getElementById("loginPage").style.display = "none";
-  document.getElementById("content").style.display = "block";
+  loginPage.style.display = "none";
+  content.style.display = "block";
 
   const session = JSON.parse(localStorage.getItem("session"));
 
-  document.getElementById("welcome").innerText =
-    `Welcome ${session.username} (${session.role})`;
+  welcome.innerText = `Welcome ${session.username} (${session.role})`;
 
   loadPages();
 
   if (session.role === "admin") {
-    document.getElementById("adminPanel").style.display = "block";
-    loadUsers();
+    adminPanel.style.display = "block";
+    renderUsers();
   }
 }
 
 // =======================
-// LOAD PAGES FROM BACKEND
+// LOAD PAGES
 // =======================
 
 async function loadPages() {
   const res = await fetch(BACKEND_URL, {
     method: "POST",
-    body: JSON.stringify({
-      action: "getPages"
-    })
+    body: JSON.stringify({ action: "getPages" })
   });
 
   const pages = await res.json();
 
-  const container = document.getElementById("pages");
-  container.innerHTML = "";
+  pagesContainer.innerHTML = "";
 
   pages.forEach(p => {
     const div = document.createElement("div");
     div.className = "game";
     div.innerHTML = p.content;
-    container.appendChild(div);
+    pages.appendChild(div);
   });
 }
 
 // =======================
-// LOAD USERS (ADMIN)
+// USERS
 // =======================
 
-async function loadUsers() {
+async function renderUsers() {
   const res = await fetch(BACKEND_URL, {
     method: "POST",
-    body: JSON.stringify({
-      action: "getUsers"
-    })
+    body: JSON.stringify({ action: "getUsers" })
   });
 
-  const users = await res.json();
+  let users = await res.json();
 
-  const container = document.getElementById("userList");
-  container.innerHTML = "";
+  const search = userSearch.value?.toLowerCase() || "";
+  const filter = userFilter.value;
+
+  users = users.filter(u => {
+    const matchSearch = u.username.toLowerCase().includes(search);
+
+    const matchFilter =
+      filter === "all" ||
+      (filter === "admin" && u.role === "admin") ||
+      (filter === "member" && u.role === "member") ||
+      (filter === "banned" && u.banned === "true");
+
+    return matchSearch && matchFilter;
+  });
+
+  userList.innerHTML = "";
 
   users.forEach(u => {
     const div = document.createElement("div");
@@ -134,17 +126,17 @@ async function loadUsers() {
 
     div.innerHTML = `
       <b>${u.username}</b><br>
-      Role: ${u.role}<br>
-      Banned: ${u.banned}<br>
-      <button onclick="toggleBan('${u.username}')">Ban/Unban</button>
+      ${u.role}<br>
+      banned: ${u.banned}<br>
+      <button onclick="toggleBan('${u.username}')">Ban</button>
     `;
 
-    container.appendChild(div);
+    userList.appendChild(div);
   });
 }
 
 // =======================
-// CREATE PAGE (ADMIN)
+// CREATE PAGE
 // =======================
 
 async function createPage() {
@@ -166,7 +158,7 @@ async function createPage() {
 }
 
 // =======================
-// TOGGLE BAN
+// BAN
 // =======================
 
 async function toggleBan(username) {
@@ -178,7 +170,19 @@ async function toggleBan(username) {
     })
   });
 
-  loadUsers();
+  renderUsers();
+}
+
+// =======================
+// TABS
+// =======================
+
+function openTab(tab) {
+  tab-users.style.display = "none";
+  tab-pages.style.display = "none";
+  tab-settings.style.display = "none";
+
+  document.getElementById("tab-" + tab).style.display = "block";
 }
 
 // =======================
@@ -186,22 +190,20 @@ async function toggleBan(username) {
 // =======================
 
 function logout() {
-  localStorage.removeItem("session");
+  localStorage.clear();
   location.reload();
 }
 
 // =======================
-// UI HELPERS
+// UI
 // =======================
 
 function setError(msg) {
-  const el = document.getElementById("error");
-  el.style.color = "red";
-  el.innerText = msg;
+  error.style.color = "red";
+  error.innerText = msg;
 }
 
 function setSuccess(msg) {
-  const el = document.getElementById("error");
-  el.style.color = "lime";
-  el.innerText = msg;
+  error.style.color = "lime";
+  error.innerText = msg;
 }
