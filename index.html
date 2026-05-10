@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Game CMS Pro</title>
 
   <style>
@@ -27,57 +26,25 @@
       width: 320px;
     }
 
-    input, select {
+    input {
       width: 100%;
       padding: 10px;
       margin-top: 10px;
-      border-radius: 6px;
-      border: none;
     }
 
     button {
       width: 100%;
       padding: 10px;
       margin-top: 10px;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
       background: #007bff;
       color: white;
+      border: none;
+      cursor: pointer;
     }
 
     #content {
       display: none;
       padding: 20px;
-    }
-
-    .game {
-      background: #222;
-      padding: 15px;
-      margin-top: 10px;
-      border-radius: 8px;
-    }
-
-    #adminPanel {
-      display: none;
-      margin-top: 20px;
-      background: #1a1a1a;
-      padding: 15px;
-      border-radius: 10px;
-    }
-
-    .tab-buttons {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .tab-buttons button {
-      flex: 1;
-    }
-
-    .hidden {
-      display: none;
     }
   </style>
 </head>
@@ -93,7 +60,6 @@
     <input id="password" type="password" placeholder="Password">
 
     <button onclick="login()">Login</button>
-    <button onclick="signup()">Sign Up</button>
 
     <p id="error"></p>
   </div>
@@ -101,52 +67,12 @@
 
 <!-- MAIN -->
 <div id="content">
-
-  <h1>Game CMS Pro</h1>
+  <h1>Game CMS</h1>
   <p id="welcome"></p>
 
   <div id="pages"></div>
 
-  <!-- ADMIN -->
-  <div id="adminPanel">
-
-    <h2>Admin Dashboard</h2>
-
-    <div class="tab-buttons">
-      <button onclick="openTab('users')">Users</button>
-      <button onclick="openTab('pages')">Pages</button>
-      <button onclick="openTab('settings')">Settings</button>
-    </div>
-
-    <!-- USERS -->
-    <div id="tab-users">
-      <input id="userSearch" placeholder="Search users..." oninput="renderUsers()">
-
-      <select id="userFilter" onchange="renderUsers()">
-        <option value="all">All</option>
-        <option value="admin">Admins</option>
-        <option value="member">Members</option>
-        <option value="banned">Banned</option>
-      </select>
-
-      <div id="userList"></div>
-    </div>
-
-    <!-- PAGES -->
-    <div id="tab-pages" class="hidden">
-      <button onclick="createPage()">Create Page</button>
-      <div id="pageList"></div>
-    </div>
-
-    <!-- SETTINGS -->
-    <div id="tab-settings" class="hidden">
-      <button onclick="logout()">Logout</button>
-    </div>
-
-  </div>
-
   <button onclick="logout()" style="background:red;">Logout</button>
-
 </div>
 
 <script src="script.js"></script>
