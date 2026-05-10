@@ -1,30 +1,52 @@
 
-const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwfc8zGznD5wre5PNIQWmnP6J64mZ5OLO207nO5pgNAMFMwz8oKmcsVLP6Zzv-lllmGyg/exec";
+// =======================
+// CONFIG
+// =======================
+
+const BACKEND_URL = "PASTE_YOUR_APPS_SCRIPT_URL_HERE";
 
 // =======================
-// LOGIN
+// LOGIN (WITH EMERGENCY ADMIN)
 // =======================
 
 async function login() {
-  const username = document.getElementById("username").value.trim();
-  const password = document.getElementById("password").value.trim();
+  const user = document.getElementById("username").value.trim();
+  const pass = document.getElementById("password").value.trim();
 
-  const res = await fetch(BACKEND_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "login",
-      username,
-      password
-    })
-  });
+  // 🧯 EMERGENCY ADMIN BACKDOOR (LOCAL ONLY)
+  if (user === "Wyatt" && pass === "Test") {
+    localStorage.setItem("session", JSON.stringify({
+      username: "Wyatt",
+      role: "admin"
+    }));
 
-  const data = await res.json();
+    showContent();
+    return;
+  }
 
-  if (!data.success) return setError(data.message);
+  // 🔌 BACKEND LOGIN
+  try {
+    const res = await fetch(BACKEND_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "login",
+        username: user,
+        password: pass
+      })
+    });
 
-  localStorage.setItem("session", JSON.stringify(data));
+    const data = await res.json();
 
-  showContent();
+    if (!data.success) {
+      return setError(data.message || "Login failed");
+    }
+
+    localStorage.setItem("session", JSON.stringify(data));
+    showContent();
+
+  } catch (err) {
+    setError("Server error or invalid backend URL");
+  }
 }
 
 // =======================
@@ -32,19 +54,26 @@ async function login() {
 // =======================
 
 async function signup() {
-  const username = document.getElementById("username").value.trim();
-  const password = document.getElementById("password").value.trim();
+  const user = document.getElementById("username").value.trim();
+  const pass = document.getElementById("password").value.trim();
 
-  await fetch(BACKEND_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "signup",
-      username,
-      password
-    })
-  });
+  if (!user || !pass) return setError("Fill all fields");
 
-  setSuccess("Account created");
+  try {
+    await fetch(BACKEND_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "signup",
+        username: user,
+        password: pass
+      })
+    });
+
+    setSuccess("Account created!");
+
+  } catch (err) {
+    setError("Signup failed");
+  }
 }
 
 // =======================
@@ -52,18 +81,20 @@ async function signup() {
 // =======================
 
 async function showContent() {
-  loginPage.style.display = "none";
-  content.style.display = "block";
+  document.getElementById("loginPage").style.display = "none";
+  document.getElementById("content").style.display = "block";
 
   const session = JSON.parse(localStorage.getItem("session"));
 
-  welcome.innerText = `Welcome ${session.username} (${session.role})`;
+  document.getElementById("welcome").innerText =
+    `Welcome ${session.username} (${session.role})`;
 
   loadPages();
 
   if (session.role === "admin") {
-    adminPanel.style.display = "block";
+    document.getElementById("adminPanel").style.display = "block";
     renderUsers();
+    renderPages();
   }
 }
 
@@ -72,67 +103,81 @@ async function showContent() {
 // =======================
 
 async function loadPages() {
-  const res = await fetch(BACKEND_URL, {
-    method: "POST",
-    body: JSON.stringify({ action: "getPages" })
-  });
+  try {
+    const res = await fetch(BACKEND_URL, {
+      method: "POST",
+      body: JSON.stringify({ action: "getPages" })
+    });
 
-  const pages = await res.json();
+    const pages = await res.json();
 
-  pagesContainer.innerHTML = "";
+    const container = document.getElementById("pages");
+    container.innerHTML = "";
 
-  pages.forEach(p => {
-    const div = document.createElement("div");
-    div.className = "game";
-    div.innerHTML = p.content;
-    pages.appendChild(div);
-  });
+    pages.forEach(p => {
+      const div = document.createElement("div");
+      div.className = "game";
+      div.innerHTML = p.content;
+      container.appendChild(div);
+    });
+
+  } catch (err) {
+    console.error("Failed to load pages");
+  }
 }
 
 // =======================
-// USERS
+// LOAD USERS (ADMIN)
 // =======================
 
 async function renderUsers() {
-  const res = await fetch(BACKEND_URL, {
-    method: "POST",
-    body: JSON.stringify({ action: "getUsers" })
-  });
+  try {
+    const res = await fetch(BACKEND_URL, {
+      method: "POST",
+      body: JSON.stringify({ action: "getUsers" })
+    });
 
-  let users = await res.json();
+    let users = await res.json();
 
-  const search = userSearch.value?.toLowerCase() || "";
-  const filter = userFilter.value;
+    const search = document.getElementById("userSearch")?.value?.toLowerCase() || "";
+    const filter = document.getElementById("userFilter")?.value || "all";
 
-  users = users.filter(u => {
-    const matchSearch = u.username.toLowerCase().includes(search);
+    users = users.filter(u => {
+      const matchSearch = u.username.toLowerCase().includes(search);
 
-    const matchFilter =
-      filter === "all" ||
-      (filter === "admin" && u.role === "admin") ||
-      (filter === "member" && u.role === "member") ||
-      (filter === "banned" && u.banned === "true");
+      const matchFilter =
+        filter === "all" ||
+        (filter === "admin" && u.role === "admin") ||
+        (filter === "member" && u.role === "member") ||
+        (filter === "banned" && u.banned === "true");
 
-    return matchSearch && matchFilter;
-  });
+      return matchSearch && matchFilter;
+    });
 
-  userList.innerHTML = "";
+    const container = document.getElementById("userList");
+    container.innerHTML = "";
 
-  users.forEach(u => {
-    const div = document.createElement("div");
-    div.style.background = "#333";
-    div.style.margin = "5px";
-    div.style.padding = "10px";
+    users.forEach(u => {
+      const div = document.createElement("div");
 
-    div.innerHTML = `
-      <b>${u.username}</b><br>
-      ${u.role}<br>
-      banned: ${u.banned}<br>
-      <button onclick="toggleBan('${u.username}')">Ban</button>
-    `;
+      div.style.background = "#333";
+      div.style.margin = "5px";
+      div.style.padding = "10px";
+      div.style.borderRadius = "6px";
 
-    userList.appendChild(div);
-  });
+      div.innerHTML = `
+        <b>${u.username}</b><br>
+        Role: ${u.role}<br>
+        Banned: ${u.banned}<br>
+        <button onclick="toggleBan('${u.username}')">Ban/Unban</button>
+      `;
+
+      container.appendChild(div);
+    });
+
+  } catch (err) {
+    console.error("User load failed");
+  }
 }
 
 // =======================
@@ -143,6 +188,8 @@ async function createPage() {
   const id = prompt("Page ID");
   const title = prompt("Title");
   const text = prompt("Text");
+
+  if (!id || !title) return;
 
   await fetch(BACKEND_URL, {
     method: "POST",
@@ -158,7 +205,7 @@ async function createPage() {
 }
 
 // =======================
-// BAN
+// TOGGLE BAN
 // =======================
 
 async function toggleBan(username) {
@@ -178,11 +225,11 @@ async function toggleBan(username) {
 // =======================
 
 function openTab(tab) {
-  tab-users.style.display = "none";
-  tab-pages.style.display = "none";
-  tab-settings.style.display = "none";
+  document.getElementById("tab-users").classList.add("hidden");
+  document.getElementById("tab-pages").classList.add("hidden");
+  document.getElementById("tab-settings").classList.add("hidden");
 
-  document.getElementById("tab-" + tab).style.display = "block";
+  document.getElementById("tab-" + tab).classList.remove("hidden");
 }
 
 // =======================
@@ -190,20 +237,24 @@ function openTab(tab) {
 // =======================
 
 function logout() {
-  localStorage.clear();
+  localStorage.removeItem("session");
   location.reload();
 }
 
 // =======================
-// UI
+// UI HELPERS
 // =======================
 
 function setError(msg) {
-  error.style.color = "red";
-  error.innerText = msg;
+  const el = document.getElementById("error");
+  if (!el) return;
+  el.style.color = "red";
+  el.innerText = msg;
 }
 
 function setSuccess(msg) {
-  error.style.color = "lime";
-  error.innerText = msg;
+  const el = document.getElementById("error");
+  if (!el) return;
+  el.style.color = "lime";
+  el.innerText = msg;
 }
