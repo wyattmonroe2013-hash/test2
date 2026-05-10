@@ -1,18 +1,51 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>main</title>
-    <link rel="stylesheet" href="./style9.css">
-    
+
+    <title>Emerald</title>
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Optional second CSS file -->
+    <link rel="stylesheet" href="style9.css">
 </head>
+
 <body class="main">
+
+    <!-- Login / Signup Navigation -->
     <div class="login">
-        <a  style="color: black;" rel="stylesheet" href="./login.html"> <h2  font-size: 20px;><pre>LOGIN |</pre> </h2></a>
-        <a style="color: black;" rel="stylesheet" href="./signup.html"><h2><pre> SIGNUP</pre></h2></a>
-    
-</div>
+
+        <a href="./login.html" style="color: black; text-decoration: none;">
+            <h2 style="font-size:20px;">LOGIN |</h2>
+        </a>
+
+        <a href="./signup.html" style="color: black; text-decoration: none;">
+            <h2 style="font-size:20px;">SIGNUP</h2>
+        </a>
+
+    </div>
+
+    <!-- Header -->
+    <header>
+        <h1>Home</h1>
+
+        <input 
+            type="text" 
+            id="searchBar" 
+            placeholder="Search games..."
+        >
+    </header>
+
+    <!-- Main Content -->
+    <main id="gameGrid" class="game-grid">
+        <!-- Games will appear here -->
+    </main>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+
 </body>
 </html>
