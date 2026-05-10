@@ -3,7 +3,7 @@
 // CONFIG
 // =======================
 
-const BACKEND_URL = "PASTE_YOUR_APPS_SCRIPT_URL_HERE";
+const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwfc8zGznD5wre5PNIQWmnP6J64mZ5OLO207nO5pgNAMFMwz8oKmcsVLP6Zzv-lllmGyg/exec";
 
 // =======================
 // LOGIN (WITH EMERGENCY ADMIN)
