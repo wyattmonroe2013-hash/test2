@@ -1,60 +1,67 @@
-console.log("SCRIPT LOADED");
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 // =======================
-// CONFIG
+// FIREBASE CONFIG
 // =======================
 
-const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwfc8zGznD5wre5PNIQWmnP6J64mZ5OLO207nO5pgNAMFMwz8oKmcsVLP6Zzv-lllmGyg/exec";
+const firebaseConfig = {
+  apiKey: "AIzaSyAjJIl9ahqtTxqYpbgDWMf6WvYJ86QQ4nk",
+  authDomain: "test-5c980.firebaseapp.com",
+  projectId: "test-5c980",
+  storageBucket: "test-5c980.firebasestorage.app",
+  messagingSenderId: "934327818159",
+  appId: "1:934327818159:web:06ad5d8fc6670a327a015a"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 // =======================
 // LOGIN
 // =======================
 
-async function login() {
-  const u = username.value.trim();
-  const p = password.value.trim();
-
-  // emergency admin
-  if (u === "Wyatt" && p === "Test") {
-    localStorage.setItem("session", JSON.stringify({ username: u, role: "admin" }));
-    showContent();
-    return;
-  }
+window.login = async function () {
+  const email = document.getElementById("email").value;
+  const pass = document.getElementById("password").value;
 
   try {
-    const res = await fetch(BACKEND_URL, {
-      method: "POST",
-      body: JSON.stringify({ action: "login", username: u, password: p })
-    });
-
-    const data = await res.json();
-
-    if (!data.success) return setError("Login failed");
-
-    localStorage.setItem("session", JSON.stringify(data));
+    await signInWithEmailAndPassword(auth, email, pass);
     showContent();
-
   } catch (e) {
-    setError("Backend error");
-    console.error(e);
+    msg.innerText = e.message;
   }
-}
+};
 
 // =======================
 // SIGNUP
 // =======================
 
-async function signup() {
-  const u = username.value.trim();
-  const p = password.value.trim();
+window.signup = async function () {
+  const email = document.getElementById("email").value;
+  const pass = document.getElementById("password").value;
 
-  await fetch(BACKEND_URL, {
-    method: "POST",
-    body: JSON.stringify({ action: "signup", username: u, password: p })
-  });
-
-  setError("Account created");
-}
+  try {
+    await createUserWithEmailAndPassword(auth, email, pass);
+    msg.innerText = "Account created!";
+  } catch (e) {
+    msg.innerText = e.message;
+  }
+};
 
 // =======================
 // SHOW CONTENT
@@ -64,117 +71,66 @@ function showContent() {
   loginPage.style.display = "none";
   content.style.display = "block";
 
-  const session = JSON.parse(localStorage.getItem("session"));
-  welcome.innerText = `Welcome ${session.username}`;
+  welcome.innerText = "Logged in";
 
   loadPages();
-
-  if (session.role === "admin") {
-    adminPanel.style.display = "block";
-    renderUsers();
-  }
-}
-
-// =======================
-// LOAD PAGES
-// =======================
-
-async function loadPages() {
-  const res = await fetch(BACKEND_URL, {
-    method: "POST",
-    body: JSON.stringify({ action: "getPages" })
-  });
-
-  const pages = await res.json();
-
-  pagesContainer.innerHTML = "";
-
-  pages.forEach(p => {
-    const div = document.createElement("div");
-    div.className = "game";
-    div.innerHTML = p.content;
-    pages.appendChild(div);
-  });
-}
-
-// =======================
-// USERS
-// =======================
-
-async function renderUsers() {
-  const res = await fetch(BACKEND_URL, {
-    method: "POST",
-    body: JSON.stringify({ action: "getUsers" })
-  });
-
-  const users = await res.json();
-
-  userList.innerHTML = "";
-
-  users.forEach(u => {
-    const div = document.createElement("div");
-    div.innerHTML = `<b>${u.username}</b> - ${u.role}`;
-    userList.appendChild(div);
-  });
-}
-
-// =======================
-// PAGES
-// =======================
-
-async function createPage() {
-  const id = prompt("Page ID");
-  const title = prompt("Title");
-  const text = prompt("Text");
-
-  await fetch(BACKEND_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "createPage",
-      id,
-      content: `<div class='game'><h3>${title}</h3><p>${text}</p></div>`
-    })
-  });
-
-  loadPages();
-}
-
-// =======================
-// TABS
-// =======================
-
-function openTab(tab) {
-  tab-users.classList.add("hidden");
-  tab-pages.classList.add("hidden");
-  tab-settings.classList.add("hidden");
-
-  document.getElementById("tab-" + tab).classList.remove("hidden");
 }
 
 // =======================
 // LOGOUT
 // =======================
 
-function logout() {
-  localStorage.clear();
+window.logout = async function () {
+  await signOut(auth);
   location.reload();
-}
+};
 
 // =======================
-// ERROR
+// LOAD PAGES
 // =======================
 
-function setError(msg) {
-  error.innerText = msg;
-}
+window.loadPages = async function () {
+  const snap = await getDocs(collection(db, "pages"));
+
+  pages.innerHTML = "";
+
+  snap.forEach(doc => {
+    const div = document.createElement("div");
+    div.className = "game";
+    div.innerHTML = doc.data().content;
+    pages.appendChild(div);
+  });
+};
 
 // =======================
-// CRITICAL FIX (THIS FIXES YOUR ERROR)
+// CREATE PAGE (ADMIN)
 // =======================
 
-window.login = login;
-window.signup = signup;
-window.logout = logout;
-window.openTab = openTab;
-window.createPage = createPage;
-window.renderUsers = renderUsers;
+window.createPage = async function () {
+  const title = prompt("Title");
+  const text = prompt("Text");
+
+  await addDoc(collection(db, "pages"), {
+    content: `<h3>${title}</h3><p>${text}</p>`
+  });
+
+  loadPages();
+};
+
+// =======================
+// LOAD USERS (simple admin viewer)
+// =======================
+
+window.loadUsers = async function () {
+  const snap = await getDocs(collection(db, "users"));
+
+  userList.innerHTML = "";
+
+  snap.forEach(doc => {
+    const u = doc.data();
+    const div = document.createElement("div");
+
+    div.innerHTML = `${u.email || "no email"}`;
+    userList.appendChild(div);
+  });
+};
