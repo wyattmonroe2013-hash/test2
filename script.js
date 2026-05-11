@@ -2,8 +2,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import {
   getAuth,
-  signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
   signOut
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
@@ -14,67 +14,83 @@ import {
   getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
+
 // =======================
 // FIREBASE CONFIG
 // =======================
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAjJIl9ahqtTxqYpbgDWMf6WvYJ86QQ4nk",
-  authDomain: "test-5c980.firebaseapp.com",
-  projectId: "test-5c980",
-  storageBucket: "test-5c980.firebasestorage.app",
-  messagingSenderId: "934327818159",
-  appId: "1:934327818159:web:06ad5d8fc6670a327a015a"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+
 // =======================
 // LOGIN
 // =======================
 
 window.login = async function () {
-  const email = document.getElementById("email").value;
-  const pass = document.getElementById("password").value;
+  const emailEl = document.getElementById("email");
+  const passEl = document.getElementById("password");
+
+  const email = emailEl?.value?.trim();
+  const password = passEl?.value?.trim();
+
+  console.log("LOGIN TRY:", email, password);
+
+  if (!email || !password) {
+    alert("Missing email or password");
+    return;
+  }
 
   try {
-    await signInWithEmailAndPassword(auth, email, pass);
-    showContent();
+    await signInWithEmailAndPassword(auth, email, password);
+
+    document.getElementById("loginPage").style.display = "none";
+    document.getElementById("content").style.display = "block";
+
+    loadPages();
+
   } catch (e) {
-    msg.innerText = e.message;
+    alert("Login failed: " + e.message);
   }
 };
+
 
 // =======================
 // SIGNUP
 // =======================
 
 window.signup = async function () {
-  const email = document.getElementById("email").value;
-  const pass = document.getElementById("password").value;
+  const emailEl = document.getElementById("email");
+  const passEl = document.getElementById("password");
+
+  const email = emailEl?.value?.trim();
+  const password = passEl?.value?.trim();
+
+  console.log("SIGNUP TRY:", email, password);
+
+  if (!email || !password) {
+    alert("Missing email or password");
+    return;
+  }
 
   try {
-    await createUserWithEmailAndPassword(auth, email, pass);
-    msg.innerText = "Account created!";
+    await createUserWithEmailAndPassword(auth, email, password);
+    alert("Account created!");
   } catch (e) {
-    msg.innerText = e.message;
+    alert("Signup failed: " + e.message);
   }
 };
 
-// =======================
-// SHOW CONTENT
-// =======================
-
-function showContent() {
-  loginPage.style.display = "none";
-  content.style.display = "block";
-
-  welcome.innerText = "Logged in";
-
-  loadPages();
-}
 
 // =======================
 // LOGOUT
@@ -85,6 +101,7 @@ window.logout = async function () {
   location.reload();
 };
 
+
 // =======================
 // LOAD PAGES
 // =======================
@@ -92,45 +109,39 @@ window.logout = async function () {
 window.loadPages = async function () {
   const snap = await getDocs(collection(db, "pages"));
 
-  pages.innerHTML = "";
+  const container = document.getElementById("pages");
+  container.innerHTML = "";
 
   snap.forEach(doc => {
     const div = document.createElement("div");
     div.className = "game";
     div.innerHTML = doc.data().content;
-    pages.appendChild(div);
+    container.appendChild(div);
   });
 };
+
 
 // =======================
 // CREATE PAGE (ADMIN)
 // =======================
 
 window.createPage = async function () {
-  const title = prompt("Title");
-  const text = prompt("Text");
+  const title = prompt("Page title");
+  const text = prompt("Page content (HTML allowed)");
+
+  if (!title || !text) return;
 
   await addDoc(collection(db, "pages"), {
-    content: `<h3>${title}</h3><p>${text}</p>`
+    content: `<h2>${title}</h2><p>${text}</p>`
   });
 
   loadPages();
 };
 
+
 // =======================
-// LOAD USERS (simple admin viewer)
+// GLOBAL SAFETY (IMPORTANT)
 // =======================
 
-window.loadUsers = async function () {
-  const snap = await getDocs(collection(db, "users"));
-
-  userList.innerHTML = "";
-
-  snap.forEach(doc => {
-    const u = doc.data();
-    const div = document.createElement("div");
-
-    div.innerHTML = `${u.email || "no email"}`;
-    userList.appendChild(div);
-  });
-};
+window.auth = auth;
+window.db = db;
