@@ -60,7 +60,7 @@
 
 <body>
 
-<!-- LOGIN SCREEN -->
+<!-- LOGIN -->
 <div class="center" id="loginPage">
   <div class="box">
     <h2>Login</h2>
@@ -79,26 +79,32 @@
 <div id="content">
   <h1>Game Portal</h1>
 
-  <p id="welcome"></p>
+  <div id="pages"></div>
 
   <button onclick="loadPages()">Refresh Pages</button>
 
-  <div id="pages"></div>
-
-  <!-- ADMIN PANEL -->
   <div id="adminPanel">
     <h2>Admin Panel</h2>
-
     <button onclick="createPage()">Create Page</button>
-    <button onclick="loadUsers()">Load Users</button>
-
-    <div id="userList"></div>
   </div>
 
   <button onclick="logout()">Logout</button>
 </div>
 
-<!-- FIREBASE SCRIPT -->
+<!-- FIREBASE CONFIG (GLOBAL) -->
+<script>
+  window.firebaseConfig = {
+    apiKey: "AIzaSyAjJIl9ahqtTxqYpbgDWMf6WvYJ86QQ4nk",
+    authDomain: "test-5c980.firebaseapp.com",
+    projectId: "test-5c980",
+    storageBucket: "test-5c980.firebasestorage.app",
+    messagingSenderId: "934327818159",
+    appId: "1:934327818159:web:06ad5d8fc6670a327a015a",
+    measurementId: "G-HXSYR52655"
+  };
+</script>
+
+<!-- MAIN SCRIPT -->
 <script type="module" src="script.js"></script>
 
 </body>
