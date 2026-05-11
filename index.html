@@ -1,27 +1,70 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Game Portal</title>
 
   <style>
-    body { font-family: Arial; background:#111; color:white; margin:0; }
-    .center { display:flex; justify-content:center; align-items:center; height:100vh; }
-    .box { background:#222; padding:20px; width:300px; border-radius:10px; }
-    input, button { width:100%; padding:10px; margin-top:10px; }
-    button { cursor:pointer; }
-    #content { display:none; padding:20px; }
-    .game { background:#333; padding:10px; margin:10px 0; border-radius:8px; }
-    #admin { display:none; margin-top:20px; padding:10px; background:#1a1a1a; }
+    body {
+      font-family: Arial;
+      background: #111;
+      color: white;
+      margin: 0;
+    }
+
+    .center {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .box {
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+      width: 300px;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    #content {
+      display: none;
+      padding: 20px;
+    }
+
+    .game {
+      background: #333;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+    }
+
+    #adminPanel {
+      display: none;
+      margin-top: 20px;
+      background: #1a1a1a;
+      padding: 10px;
+      border-radius: 10px;
+    }
   </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
+<!-- LOGIN SCREEN -->
 <div class="center" id="loginPage">
   <div class="box">
     <h2>Login</h2>
+
     <input id="email" placeholder="Email">
     <input id="password" type="password" placeholder="Password">
 
@@ -32,26 +75,30 @@
   </div>
 </div>
 
-<!-- MAIN -->
+<!-- MAIN CONTENT -->
 <div id="content">
-  <h2>Game Portal</h2>
-  <p id="welcome"></p>
+  <h1>Game Portal</h1>
 
-  <div id="pages"></div>
+  <p id="welcome"></p>
 
   <button onclick="loadPages()">Refresh Pages</button>
 
-  <div id="admin">
-    <h3>Admin Panel</h3>
+  <div id="pages"></div>
+
+  <!-- ADMIN PANEL -->
+  <div id="adminPanel">
+    <h2>Admin Panel</h2>
+
     <button onclick="createPage()">Create Page</button>
     <button onclick="loadUsers()">Load Users</button>
+
     <div id="userList"></div>
   </div>
 
   <button onclick="logout()">Logout</button>
 </div>
 
-<!-- FIREBASE + SCRIPT -->
+<!-- FIREBASE SCRIPT -->
 <script type="module" src="script.js"></script>
 
 </body>
