@@ -1,20 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Game CMS</title>
+  <title>Game Portal</title>
 
   <style>
     body { font-family: Arial; background:#111; color:white; margin:0; }
-    .center { height:100vh; display:flex; align-items:center; justify-content:center; }
-    .box { background:#222; padding:20px; border-radius:10px; width:300px; }
+    .center { display:flex; justify-content:center; align-items:center; height:100vh; }
+    .box { background:#222; padding:20px; width:300px; border-radius:10px; }
     input, button { width:100%; padding:10px; margin-top:10px; }
     button { cursor:pointer; }
     #content { display:none; padding:20px; }
-    .game { background:#333; padding:10px; margin-top:10px; border-radius:8px; }
-    #adminPanel { display:none; margin-top:20px; padding:10px; background:#1a1a1a; }
-    .hidden { display:none; }
+    .game { background:#333; padding:10px; margin:10px 0; border-radius:8px; }
+    #admin { display:none; margin-top:20px; padding:10px; background:#1a1a1a; }
   </style>
 </head>
 
@@ -24,46 +22,37 @@
 <div class="center" id="loginPage">
   <div class="box">
     <h2>Login</h2>
-    <input id="username" placeholder="Username">
+    <input id="email" placeholder="Email">
     <input id="password" type="password" placeholder="Password">
+
     <button onclick="login()">Login</button>
     <button onclick="signup()">Sign Up</button>
-    <p id="error"></p>
+
+    <p id="msg"></p>
   </div>
 </div>
 
 <!-- MAIN -->
 <div id="content">
-  <h1>Game CMS</h1>
+  <h2>Game Portal</h2>
   <p id="welcome"></p>
 
   <div id="pages"></div>
 
-  <div id="adminPanel">
-    <h2>Admin Panel</h2>
+  <button onclick="loadPages()">Refresh Pages</button>
 
-    <button onclick="openTab('users')">Users</button>
-    <button onclick="openTab('pages')">Pages</button>
-    <button onclick="openTab('settings')">Settings</button>
-
-    <div id="tab-users">
-      <input id="userSearch" placeholder="Search users..." oninput="renderUsers()">
-      <div id="userList"></div>
-    </div>
-
-    <div id="tab-pages" class="hidden">
-      <button onclick="createPage()">Create Page</button>
-    </div>
-
-    <div id="tab-settings" class="hidden">
-      <button onclick="logout()">Logout</button>
-    </div>
+  <div id="admin">
+    <h3>Admin Panel</h3>
+    <button onclick="createPage()">Create Page</button>
+    <button onclick="loadUsers()">Load Users</button>
+    <div id="userList"></div>
   </div>
 
-  <button onclick="logout()" style="background:red; margin-top:20px;">Logout</button>
+  <button onclick="logout()">Logout</button>
 </div>
 
-<script src="script.js"></script>
+<!-- FIREBASE + SCRIPT -->
+<script type="module" src="script.js"></script>
 
 </body>
 </html>
